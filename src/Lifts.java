@@ -2,6 +2,7 @@ import java.io.*;
 import java.util.Properties;
 import java.util.Random;
 import java.util.ArrayList ;
+
 public class Lifts {
     private static final int M=5;	// max distance elevator moves per tick
     private static final int PF=3;	// prob (PF-1)/PF that person on floor != 1
@@ -42,7 +43,7 @@ public class Lifts {
             System.out.println( value[i] );
         }
         linked = (value[0].equals( "linked" ));
-        linked = false;
+        // linked = false;
         capacity = Integer.parseInt( value[4] );
         duration = Integer.parseInt( value[5] );
         elevators = Integer.parseInt( value[3] );
