@@ -63,7 +63,7 @@ public class Lifts {
 
         duration = 1000;				// actually used here
         elevators = 4;				// "
-        floors = 50;				// "
+        floors = 10;				// "
         prob = 0.032;				// "  1/32, exact
 
 
@@ -330,7 +330,7 @@ public class Lifts {
 //                    System.out.format( "-- tick%4d - no.%4d enters"+
 //                            " elevator%3d:",tick,p.Id(),e );
                     display();
-                    floor.goodbye( p );
+                    floor.enterElevator( p ); // person enters elevator
                     wait[curr]--;
                 }
                 p = floor.nextPerson( p,i++ );
@@ -338,7 +338,7 @@ public class Lifts {
             floor.ckButtons( curr,pushUp,pushDown );			// check buttons
         }
 
-        private int goodbye( Passenger p ) {
+        private int goodbye( Passenger p ) { // passenger leaving elevator
 
             if ( linked ) {
                 remove(p) ;
@@ -470,7 +470,7 @@ public class Lifts {
             Passenger p = (linked ? head : eList.get( i++ ));
             while ( p != null ) {
                 if ( p.Dest() == floor ) {
-                    int t = goodbye( p );
+                    int t = goodbye( p ); //passenger leaving elevator
                     if ( t < minTime ) {
                         minTime = t;	// new min time
                     }
@@ -579,7 +579,7 @@ public class Lifts {
 //            System.out.println();
 //        }
 
-        private void goodbye( Person p ) {
+        private void enterElevator( Person p ) { // person to passenger. person enters elevator
 
             if ( linked ) {
                 if ( p == head ) {
