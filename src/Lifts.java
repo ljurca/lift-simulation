@@ -180,20 +180,6 @@ public class Lifts {
         }
     }
 
-    private static int destfloor( int floor ) {
-        Random rand=new Random();
-
-        if ( floor == 1 ) {
-            return( (random( rand ) % (floors-1))+2 );
-            // 2 <= ? <= floors
-        }
-        if ( (random( rand ) % PF) != 0 ) {
-            return( 1 );	// to floor 1	// probability of this
-            //  equals (PF-1)/PF
-        }
-        int r = (random( rand ) % (floors-2))+2; // 2 <= r < floors
-        return( (r < floor ? r : r+1) );     // 2 <= ? != 1 <= floors
-    }
 
     private static void getvalues( String fname,String [] key,String [] v,
                                    String [] dv ) {
@@ -523,19 +509,22 @@ public class Lifts {
         /*--------------------------------------------------------------------*/
         /* private methods - Floor					      */
         /*--------------------------------------------------------------------*/
+        private void add(Person p ){
+            if ( head == null ) {
+                head = p;
+                p.blink = null;
+            } else {
+                tail.flink = p;
+                p.blink = tail;
+            }
+            p.flink = null;
+            tail = p;
 
+        }
         private void append( Person p ) {
 
             if ( linked ) {
-                if ( head == null ) {
-                    head = p;
-                    p.blink = null;
-                } else {
-                    tail.flink = p;
-                    p.blink = tail;
-                }
-                p.flink = null;
-                tail = p;
+               add(p);
             } else {
                 fList.add( p );
             }
@@ -668,6 +657,21 @@ public class Lifts {
             id = ++pID;
             arr = tick;
             dest = destfloor( floor );
+        }
+
+        private static int destfloor( int floor ) {
+            Random rand=new Random();
+
+            if ( floor == 1 ) {
+                return( (random( rand ) % (floors-1))+2 );
+                // 2 <= ? <= floors
+            }
+            if ( (random( rand ) % PF) != 0 ) {
+                return( 1 );	// to floor 1	// probability of this
+                //  equals (PF-1)/PF
+            }
+            int r = (random( rand ) % (floors-2))+2; // 2 <= r < floors
+            return( (r < floor ? r : r+1) );     // 2 <= ? != 1 <= floors
         }
 
         /*--------------------------------------------------------------------*/
