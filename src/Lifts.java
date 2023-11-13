@@ -14,8 +14,8 @@ public class Lifts {
     /*------------------------------------------------------------*/
 
     static Boolean linked;
-    static int capacity,duration,elevators,floors,maxt,mint,pid,
-            tick,tott,v0,v1;
+    static int capacity,duration,elevators,floors,maxTime,minTime,pID,
+            tick,totalTime,visitors,reachedDest;
     static double prob;			// "passengers" in file
 
     public static void main( String[] args ) throws IOException {
@@ -38,10 +38,7 @@ public class Lifts {
         } else {
             getvalues( args[0],key,value,defvalue );
         }
-        System.out.println( "-- default values --\n" );
-        for ( int i = 0;  i < defvalue.length;  i++ ) {
-            System.out.println( value[i] );
-        }
+
         linked = (value[0].equals( "linked" ));
         // linked = false;
         capacity = Integer.parseInt( value[4] );
@@ -49,6 +46,7 @@ public class Lifts {
         elevators = Integer.parseInt( value[3] );
         floors = Integer.parseInt( value[1] );
         prob = Double.parseDouble( value[2] );
+
         System.out.println( "\n-- actual values --\n" );
         System.out.println( "structures       = "+"\""+value[0]+"\"" );
         System.out.println( "floors           = "+floors );
@@ -67,24 +65,24 @@ public class Lifts {
         prob = 0.03125;				// "  1/32, exact
 
 
-        Elevator [] elevatora=new Elevator [elevators];
-        Floor [] floora=new Floor [floors+1];
-        Boolean [] pushup=new Boolean [floors+1];
-        Boolean [] pushdown=new Boolean [floors+1];
+        Elevator [] elevatorArr=new Elevator [elevators];
+        Floor [] floorArr=new Floor [floors+1];
+        Boolean [] pushUp=new Boolean [floors+1];
+        Boolean [] pushDown=new Boolean [floors+1];
         Integer [] wait=new Integer [floors+1];
         for ( int e = 0;  e < elevators;  e++ ) {
-            elevatora[e] = new Elevator();
+            elevatorArr[e] = new Elevator();
         }
         for ( int f = 0;  f <= floors;  f++ ) {
-            floora[f] = new Floor();
+            floorArr[f] = new Floor();
         }
         for ( int f = 1;  f <= floors;  f++ ) {
-            pushup[f] = pushdown[f] = false;// call elevator buttons
+            pushUp[f] = pushDown[f] = false;// call elevator buttons
             wait[f] = 0;
         }
-        mint = Integer.MAX_VALUE;		// for min
-        maxt = tott = 0;			// for mean, max
-        pid = v0 = v1 = 0;	// people id's; visitors; who reach dest
+        minTime = Integer.MAX_VALUE;		// for min
+        maxTime = totalTime = 0;			// for mean, max
+        pID = visitors = reachedDest = 0;	// people id's; visitors; who reach dest
 
         /*------------------------------------------------------------*/
         /* the actual work					      */
@@ -92,8 +90,8 @@ public class Lifts {
 
         long t = System.currentTimeMillis();
         for ( tick = 1;  tick <= duration;  tick++ ) {
-            arrivals( floora,wait,pushup,pushdown );
-            departures( floora,wait,pushup,pushdown,elevatora );
+            arrivals( floorArr,wait,pushUp,pushDown );
+            departures( floorArr,wait,pushUp,pushDown,elevatorArr );
         }
         t = System.currentTimeMillis()-t;
 
@@ -101,74 +99,74 @@ public class Lifts {
         /* the results						      */
         /*------------------------------------------------------------*/
 
-        int r=0,w=0;				// riders, waiters
+        int riders=0,waiters=0;				// riders, waiters
 
         for ( int f = 1;  f <= floors;  f++ ) {
             if ( 0 < wait[f] ) {
-                w += wait[f];
+                waiters += wait[f];
                 System.out.format( "%4d-th floor:",f );
-                floora[f].display();
+                floorArr[f].display();
             }
         }
         for ( int e = 0;  e < elevators;  e++ ) {
-            Elevator car = elevatora[e];
+            Elevator car = elevatorArr[e];
             if ( 0 < car.Load() ) {
-                r += car.Load();
+                riders += car.Load();
                 System.out.format( "%4d-th elevator:",e );
                 car.display();
             }
         }
-        System.out.format( "%4d visitors\n",v0 );
-        System.out.format( "%4d to destination\n",v1 );
-        System.out.format( "%4d waiting on floors\n",w );
-        System.out.format( "%4d  riding in elevator(s)\n",r );
+        System.out.format( "%4d visitors\n",visitors );
+        System.out.format( "%4d to destination\n",reachedDest );
+        System.out.format( "%4d waiting on floors\n",waiters );
+        System.out.format( "%4d  riding in elevator(s)\n",riders );
         System.out.format( "%4d minimum time from arrival to "+
-                "destination\n",mint );
+                "destination\n",minTime );
         System.out.format( "%7.2f mean time from arrival to "+
-                "destination\n",(double)tott/(double)v1 );
+                "destination\n",(double)totalTime/(double)reachedDest );
         System.out.format( "%4d maximum time from arrival to "+
-                "destination\n",maxt );
+                "destination\n",maxTime );
         System.out.format( "%4d milliseconds to do simulation\n",t );
     }
 
-    private static void arrivals( Floor [] floora,Integer [] wait,
-                                  Boolean [] b0,Boolean [] b1 ) {
+    private static void arrivals( Floor [] floorArr,Integer [] wait,
+                                  Boolean [] pushUp,Boolean [] pushDown) {
 
         for ( int f = 1;  f <= floors;  f++ ) {
             System.out.format( "-- arrivals: f =%2d --\n",f );
-            Floor floor = floora[f];
+            Floor floor = floorArr[f];
             int n = npersons();	// usually 0
             System.out.format( "-- arrivals: f =%3d, n =%2d --\n",f,n );
-            v0 += n;
+            visitors += n;
             wait[f] += n;
             for ( int i = n;  0 < i--; ) {	// n times
-                Person p = new Person( f,b0,b1 );
+                Person p = new Person( f,pushUp,pushDown );
                 System.out.format( "-- tick%4d - no."+
                         "%4d enters on floor%3d, dest =%"+
                         "3d\n",tick,p.Id(),f,p.Dest() );
                 floor.append( p );
             }
             if ( n != 0 ) {
-                floor.ckbuttons( f,b0,b1 );
+                floor.ckbuttons( f,pushUp,pushDown );
             }
         }
     }
 
-    private static void departures( Floor [] floora,Integer [] wait,
-                                    Boolean [] b0,Boolean [] b1,Elevator [] elevatora ) {
+    private static void departures( Floor [] floorArr,Integer [] wait,
+                                    Boolean [] pushUp,Boolean [] pushDown,Elevator [] elevatorArr ) {
 
         for ( int e = 0;  e < elevators;  e++ ) {
-            Elevator car = elevatora[e];
+            Elevator car = elevatorArr[e];
             int curr = car.Curr();
             if ( 0 < car.Load() ) {
                 car.unload( curr );
             }
-            int dir = (car.Prev() < curr ? 0 : 1); // 0 up 1 down
+            int dir = (car.Prev() < curr ? 0 : 1); // 0 up 1 down, direction
             if ( wait[curr] != 0 ) {
-                car.getPassengers( floora[curr],wait,curr,
-                        b0,b1,e,dir );
+                car.getPassengers( floorArr[curr],wait,curr,
+                        pushUp,pushDown,e,dir );
             }
-            car.toNextFloor( curr,dir,b0,b1 );
+            car.toNextFloor( curr,dir,pushUp,pushDown );
         }
     }
 
@@ -245,7 +243,7 @@ public class Lifts {
         /*--------------------------------------------------------------------*/
 
         private Passenger head,tail;	// an Elevator is a doubly linked list
-        private ArrayList<Passenger> elist;	// or an ArrayList
+        private ArrayList<Passenger> eList;	// or an ArrayList
         private int curr,load,prev;
 
         /*--------------------------------------------------------------------*/
@@ -255,7 +253,7 @@ public class Lifts {
         Elevator() {
 
             head = tail = null;
-            this.elist = new ArrayList<Passenger>();
+            this.eList = new ArrayList<Passenger>();
             load = prev = 0;			// must go up from 1
             curr = 1;
         }
@@ -300,7 +298,7 @@ public class Lifts {
                 }
                 tail = p;
             } else {
-                elist.add( p );
+                eList.add( p );
             }
             load++;
         }
@@ -308,7 +306,7 @@ public class Lifts {
         private void display() {
 
             int i = 0;
-            Passenger p = (linked ? head : elist.get( i++ ));
+            Passenger p = (linked ? head : eList.get( i++ ));
             while ( p != null ) {
                 System.out.print( " ["+p.id+","+p.arr+","+p.dest+"]" );
                 p = nextPassenger( p,i++ );
@@ -317,7 +315,7 @@ public class Lifts {
         }
 
         private void getPassengers( Floor floor,Integer [] wait,int curr,
-                                    Boolean [] b0,Boolean [] b1,int e,int dir ) {
+                                    Boolean [] pushUp,Boolean [] pushDown,int e,int dir ) {
 
             int i = 0;
             Person p = (linked ? floor.Head() : floor.Get( i++ ));
@@ -325,8 +323,8 @@ public class Lifts {
                 if ( capacity <= load ) {
                     break;
                 }
-                int dirp = (curr < p.Dest() ? 0 : 1);
-                if ( dirp == dir ) {
+                int dirPerson = (curr < p.Dest() ? 0 : 1); // direction a person is going
+                if ( dirPerson == dir ) {
                     accept( new Passenger( p.Id(),p.Arr(),
                             p.Dest() ) );
                     System.out.format( "-- tick%4d - no.%4d enters"+
@@ -337,29 +335,29 @@ public class Lifts {
                 }
                 p = floor.nextPerson( p,i++ );
             }
-            floor.ckbuttons( curr,b0,b1 );			// check buttons
+            floor.ckbuttons( curr,pushUp,pushDown );			// check buttons
         }
 
         private int goodbye( Passenger p ) {
 
             if ( linked ) {
                 if ( p == head ) {
-                    head = p.flink;
+                    head = p.flink; // forward link
                 } else {
                     p.blink.flink = p.flink;
                 }
                 if ( p == tail ) {
-                    tail = p.blink;
+                    tail = p.blink; // backwards link
                 } else {
                     p.flink.blink = p.blink;
                 }
             } else {
-                elist.remove( p );
+                eList.remove( p );
             }
             System.out.format( "-- tick%4d - no.%4d exits  on floor%3d\n",
                     tick,p.Id(),p.Dest() );
             --load;
-            v1++;
+            reachedDest++;
             return( tick-p.Arr() );
         }
 
@@ -368,19 +366,19 @@ public class Lifts {
             if ( linked ) {
                 return( p.flink );
             } else {
-                return (i < elist.size() ? elist.get(i) : null) ;
+                return (i < eList.size() ? eList.get(i) : null) ;
             }
         }
 
 
 
-        private void toNextFloor( int curr,int dir,Boolean [] b0,
-                                  Boolean [] b1 ) {
+        private void toNextFloor( int curr,int dir,Boolean [] pushUp,
+                                  Boolean [] pushDown ) {
             int i,j,k;
 
             if ( load == 0 ) {				// empty car
                 for ( i = curr;  i < floors-1; ) {
-                    if ( b0[++i] ) {
+                    if ( pushUp[++i] ) {
                         i = min( i,curr+M );
                         setPrev( i-1 );
                         setCurr( i );		// go to i
@@ -388,7 +386,7 @@ public class Lifts {
                     }
                 }			// nobody above wants up
                 for ( i = curr;  i < floors; ) {
-                    if ( b1[++i] ) {
+                    if ( pushDown[++i] ) {
                         i = min( i,curr+M );
                         setPrev( i+1 );
                         setCurr( i );		// go to i
@@ -396,7 +394,7 @@ public class Lifts {
                     }
                 }			// nobody above wants down
                 for ( j = curr;  2 < j; ) {
-                    if ( b1[--j] ) {
+                    if ( pushDown[--j] ) {
                         j = max( j,curr-M );
                         setPrev( j+1 );
                         setCurr( j );		// go to j
@@ -404,7 +402,7 @@ public class Lifts {
                     }
                 }			// nobody below wants down
                 for ( j = curr;  2 <= j; ) {
-                    if ( b0[--j] ) {
+                    if ( pushUp[--j] ) {
                         j = max( j,curr-M );
                         setPrev( j-1 );
                         setCurr( j );		// go to j
@@ -416,7 +414,7 @@ public class Lifts {
             if ( dir == 0 ) {			// going up
                 i = floors;
                 k = 0;
-                Passenger p = (linked ? head : elist.get( k++ ));
+                Passenger p = (linked ? head : eList.get( k++ ));
                 while ( p != null ) {
                     int d = p.Dest();
                     if ( d <= i ) {
@@ -425,7 +423,7 @@ public class Lifts {
                     p = nextPassenger( p,k++ );
                 }
                 for ( j = curr;  j < floors; ) {
-                    if ( b0[++j] ) {	// waiter going up?
+                    if ( pushUp[++j] ) {	// waiter going up?
                         break;
                     }
                 }
@@ -438,7 +436,7 @@ public class Lifts {
             } else {				// going down
                 i = 1;				// bottom floor
                 k = 0;
-                Passenger p = (linked ? head : elist.get( k++ ));
+                Passenger p = (linked ? head : eList.get( k++ ));
                 while ( p != null ) {
                     int d = p.Dest();
                     if ( i <= d ) {
@@ -447,7 +445,7 @@ public class Lifts {
                     p = nextPassenger( p,k++ );
                 }
                 for ( j = curr;  1 < j; ) {
-                    if ( b1[--j] ) {
+                    if ( pushDown[--j] ) {
                         break;
                     }
                 }
@@ -465,16 +463,16 @@ public class Lifts {
 
             System.out.println( "-- unloading --" );
             int i = 0;
-            Passenger p = (linked ? head : elist.get( i++ ));
+            Passenger p = (linked ? head : eList.get( i++ ));
             while ( p != null ) {
                 if ( p.Dest() == floor ) {
                     int t = goodbye( p );
-                    if ( t < mint ) {
-                        mint = t;	// new min time
+                    if ( t < minTime ) {
+                        minTime = t;	// new min time
                     }
-                    tott += t;		// sum of times
-                    if ( maxt < t ) {
-                        maxt = t;	// new max time
+                    totalTime += t;		// sum of times
+                    if ( maxTime < t ) {
+                        maxTime = t;	// new max time
                     }
                 }
                 p = nextPassenger( p,i++ );
@@ -490,7 +488,7 @@ public class Lifts {
         /*--------------------------------------------------------------------*/
 
         private Person head,tail;	// a Floor is a doubly linked list
-        private ArrayList<Person> flist; // or not
+        private ArrayList<Person> fList; // or not
 
         /*--------------------------------------------------------------------*/
         /* constructor - Floor						      */
@@ -499,7 +497,7 @@ public class Lifts {
         Floor() {
 
             head = tail = null;	// empty Floor
-            this.flist = new ArrayList<Person>();
+            this.fList = new ArrayList<Person>();
         }
 
         /*--------------------------------------------------------------------*/
@@ -507,11 +505,11 @@ public class Lifts {
         /*--------------------------------------------------------------------*/
 
         private ArrayList<Person> Flist() {
-            return( flist );
+            return( fList );
         }
 
         private Person Get( int i ) {
-            return( flist.get( i ) );
+            return( fList.get( i ) );
         }
 
         private Person Head() {
@@ -535,19 +533,19 @@ public class Lifts {
                 p.flink = null;
                 tail = p;
             } else {
-                flist.add( p );
+                fList.add( p );
             }
         }
 
         private void ckbuttons( int curr,Boolean [] b0,Boolean [] b1 ) {
             int i;
 
-            if(!linked && flist.size() == 0){
+            if(!linked && fList.size() == 0){
                 return ;
             }
             b0[curr] = b1[curr] = false;
             i = 0;
-            Person p = (linked ? head : flist.get( i++ ));
+            Person p = (linked ? head : fList.get( i++ ));
             while ( p != null ) {
                 if ( curr < p.Dest() ) {
                     b0[curr] = true;
@@ -556,7 +554,7 @@ public class Lifts {
                 p = nextPerson( p,i++ );
             }
             i = 0;
-            p = (linked ? head : flist.get( i++ ));
+            p = (linked ? head : fList.get( i++ ));
             while ( p != null ) {
                 if ( p.Dest() < curr ) {
                     b1[curr] = true;
@@ -567,7 +565,7 @@ public class Lifts {
         }
 
         private void display() {
-            if ((head == null) || (!linked && flist.size() == 0)){
+            if ((head == null) || (!linked && fList.size() == 0)){
                 return ;
             }
             for ( Person p = head;  p != null;  p = p.flink ) {
@@ -591,7 +589,7 @@ public class Lifts {
                     p.flink.blink = p.blink;
                 }
             } else {
-                flist.remove( p );
+                fList.remove( p );
             }
         }
 
@@ -600,7 +598,7 @@ public class Lifts {
             if ( linked ) {
                 return( p.flink );
             } else {
-                return (i < flist.size() ? flist.get(i) : null) ;
+                return (i < fList.size() ? fList.get(i) : null) ;
             }
         }
     }
@@ -663,7 +661,7 @@ public class Lifts {
 
         Person( int floor,Boolean [] b0,Boolean [] b1 ) {
 
-            id = ++pid;
+            id = ++pID;
             arr = tick;
             dest = destfloor( floor );
         }
