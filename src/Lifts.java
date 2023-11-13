@@ -204,16 +204,6 @@ public class Lifts {
         }
     }
 
-    private static int max( int a,int b ) {
-
-        return( (a <= b ? b : a) );
-    }
-
-    private static int min( int a,int b ) {
-
-        return( (a <= b ? a : b) );
-    }
-
     private static int npersons() {
 
         return( (prob < new Random().nextDouble() ? 0 : 1) );
@@ -379,7 +369,7 @@ public class Lifts {
             if ( load == 0 ) {				// empty car
                 for ( i = curr;  i < floors-1; ) {
                     if ( pushUp[++i] ) {
-                        i = min( i,curr+M );
+                        i = Math.min( i,curr+M );
                         setPrev( i-1 );
                         setCurr( i );		// go to i
                         return;
@@ -387,7 +377,7 @@ public class Lifts {
                 }			// nobody above wants up
                 for ( i = curr;  i < floors; ) {
                     if ( pushDown[++i] ) {
-                        i = min( i,curr+M );
+                        i = Math.min( i,curr+M );
                         setPrev( i+1 );
                         setCurr( i );		// go to i
                         return;
@@ -395,7 +385,7 @@ public class Lifts {
                 }			// nobody above wants down
                 for ( j = curr;  2 < j; ) {
                     if ( pushDown[--j] ) {
-                        j = max( j,curr-M );
+                        j = Math.max( j,curr-M );
                         setPrev( j+1 );
                         setCurr( j );		// go to j
                         return;
@@ -403,7 +393,7 @@ public class Lifts {
                 }			// nobody below wants down
                 for ( j = curr;  2 <= j; ) {
                     if ( pushUp[--j] ) {
-                        j = max( j,curr-M );
+                        j = Math.max( j,curr-M );
                         setPrev( j-1 );
                         setCurr( j );		// go to j
                         return;
@@ -430,33 +420,32 @@ public class Lifts {
                 if ( j < i ) {
                     i = j;
                 }
-                i = min( i,curr+M );
+                i = Math.min( i,curr+M );
                 setPrev( i-1 );
                 setCurr( i );
-            } else {				// going down
-                i = 1;				// bottom floor
+            } else {                // going down
+                i = 1;                // bottom floor
                 k = 0;
-                Passenger p = (linked ? head : eList.get( k++ ));
-                while ( p != null ) {
+                Passenger p = (linked ? head : eList.get(k++));
+                while (p != null) {
                     int d = p.Dest();
-                    if ( i <= d ) {
+                    if (i <= d) {
                         i = d;
                     }
-                    p = nextPassenger( p,k++ );
+                    p = nextPassenger(p, k++);
                 }
-                for ( j = curr;  1 < j; ) {
-                    if ( pushDown[--j] ) {
+                for (j = curr; 1 < j; ) {
+                    if (pushDown[--j]) {
                         break;
                     }
                 }
-                if ( j < i ) {
+                if (j < i) {
                     j = i;
                 }
-                j = max( j,curr-M );
-                setPrev( j+1 );
-                setCurr( j );
+                j = Math.max(j, curr - M);
+                setPrev(j + 1);
+                setCurr(j);
             }
-            return;
         }
 
         private void unload( int floor ) {
@@ -686,6 +675,4 @@ public class Lifts {
             return id;
         }
     }
-
-
 }
