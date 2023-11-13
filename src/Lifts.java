@@ -413,7 +413,7 @@ public class Lifts {
                     p = nextPassenger( p,k++ );
                 }
                 for ( j = curr;  j < floors; ) {
-                    if ( pushUp[++j] ) {	// waiter going up?
+                    if ( pushUp[++j] ) {	// going up?
                         break;
                     }
                 }
@@ -529,7 +529,7 @@ public class Lifts {
         private void ckbuttons( int curr,Boolean [] b0,Boolean [] b1 ) {
             int i;
 
-            if(!linked && fList.size() == 0){
+            if(!linked && fList.isEmpty()){
                 return ;
             }
             b0[curr] = b1[curr] = false;
@@ -554,7 +554,7 @@ public class Lifts {
         }
 
         private void display() {
-            if ((head == null) || (!linked && fList.size() == 0)){
+            if ((head == null) || (!linked && fList.isEmpty())){
                 return ;
             }
             for ( Person p = head;  p != null;  p = p.flink ) {
@@ -648,7 +648,7 @@ public class Lifts {
         /* constructor - Person						      */
         /*--------------------------------------------------------------------*/
 
-        Person( int floor,Boolean [] b0,Boolean [] b1 ) {
+        Person( int floor,Boolean [] pushUp,Boolean [] pushDown ) {
 
             id = ++pID;
             arr = tick;
