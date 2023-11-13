@@ -157,7 +157,7 @@ public class Lifts {
                 floor.append( p );
             }
             if ( n != 0 ) {
-                floor.ckbuttons( f,pushUp,pushDown );
+                floor.ckButtons( f,pushUp,pushDown );
             }
         }
     }
@@ -335,7 +335,7 @@ public class Lifts {
                 }
                 p = floor.nextPerson( p,i++ );
             }
-            floor.ckbuttons( curr,pushUp,pushDown );			// check buttons
+            floor.ckButtons( curr,pushUp,pushDown );			// check buttons
         }
 
         private int goodbye( Passenger p ) {
@@ -541,7 +541,7 @@ public class Lifts {
             }
         }
 
-        private void ckbuttons( int curr,Boolean [] pushUp,Boolean [] pushDown ) {
+        private void ckButtons( int curr,Boolean [] pushUp,Boolean [] pushDown ) {
             int i;
 
             if(!linked && fList.isEmpty()){
