@@ -63,7 +63,7 @@ public class Lifts {
 
         duration = 1000;				// actually used here
         elevators = 4;				// "
-        floors = 30;				// "
+        floors = 50;				// "
         prob = 0.032;				// "  1/32, exact
 
 
@@ -341,16 +341,7 @@ public class Lifts {
         private int goodbye( Passenger p ) {
 
             if ( linked ) {
-                if ( p == head ) {
-                    head = p.flink; // forward link
-                } else {
-                    p.blink.flink = p.flink;
-                }
-                if ( p == tail ) {
-                    tail = p.blink; // backwards link
-                } else {
-                    p.flink.blink = p.blink;
-                }
+                remove(p) ;
             } else {
                 eList.remove( p );
             }
@@ -359,6 +350,20 @@ public class Lifts {
             --load;
             reachedDest++;
             return( tick-p.Arr() );
+        }
+
+        private void remove(Passenger p){
+            if ( p == head ) {
+                head = p.flink; // forward link
+            } else {
+                p.blink.flink = p.flink;
+            }
+            if ( p == tail ) {
+                tail = p.blink; // backwards link
+            } else {
+                p.flink.blink = p.blink;
+            }
+
         }
 
         private Passenger nextPassenger( Passenger p,int i ) {
