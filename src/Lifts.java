@@ -49,13 +49,13 @@ public class Lifts {
         floors = Integer.parseInt( value[1] );
         prob = Double.parseDouble( value[2] );
 
-//        System.out.println( "\n-- actual values --\n" );
-//        System.out.println( "structures       = "+"\""+value[0]+"\"" );
-//        System.out.println( "floors           = "+floors );
-//        System.out.println( "passengers       = "+prob );
-//        System.out.println( "elevators        = "+elevators );
-//        System.out.println( "elevatorCapacity = "+capacity );
-//        System.out.println( "duration         = "+duration );
+        System.out.println( "\n-- actual values --\n" );
+        System.out.println( "structures       = "+"\""+value[0]+"\"" );
+        System.out.println( "floors           = "+floors );
+        System.out.println( "passengers       = "+prob );
+        System.out.println( "elevators        = "+elevators );
+        System.out.println( "elevatorCapacity = "+capacity );
+        System.out.println( "duration         = "+duration + "\n");
 
         /*------------------------------------------------------------*/
         /* initializing stuff					      */
