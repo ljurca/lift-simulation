@@ -4,50 +4,50 @@ import java.io.*;
 import java.util.Properties;
 import java.util.Random;
 import java.util.ArrayList ;
+import java.lang.Math ;
 
 public class Lifts {
-    private static final int M=5;	// max distance elevator moves per tick
-    private static final int PF=3;	// prob (PF-1)/PF that person on floor != 1
+    private static final int M = 5;    // max distance elevator moves per tick
+    private static final int PF = 3;    // prob (PF-1)/PF that person on floor != 1
     //  chooses floor 1 as next destination floor
 
 
     /*------------------------------------------------------------*/
-    /* global variables					      */
+    /* global variables					                          */
     /*------------------------------------------------------------*/
 
+    static double prob;            // "passengers" in file
+    static int capacity, duration, elevators, floors, maxTime, minTime, pID,
+            tick, totalTime, visitors, reachedDest, up, down;
     static Boolean linked;
-    static int capacity,duration,elevators,floors,maxTime,minTime,pID,
-            tick,totalTime,visitors,reachedDest;
-    static double prob;			// "passengers" in file
 
-    public static void main( String[] args ) throws IOException {
+    public static void main(String[] args) throws IOException {
 
         /*------------------------------------------------------------*/
-        /* local variables					      */
+        /* local variables					                          */
         /*------------------------------------------------------------*/
 
-        String [] defvalue={"linked","32","0.03","1","10","500"};
-        String [] key={"structures","floors","passengers","elevators",
-                "elevatorCapacity","duration"};
-        String [] value=new String[defvalue.length];
+        String[] defvalue = {"linked", "32", "0.03", "1", "10", "500"};
+        String[] key = {"structures", "floors", "passengers", "elevators",
+                "elevatorCapacity", "duration"};
+        String[] value = new String[defvalue.length];
 
         /*------------------------------------------------------------*/
-        /* checking possible input file				      */
+        /* checking possible input file				                  */
         /*------------------------------------------------------------*/
 
-        if ( args.length == 0 ) {
-            System.arraycopy( defvalue,0,value,0,defvalue.length );
+        if (args.length != 0) {
+            getvalues(args[0], key, value, defvalue);
         } else {
-            getvalues( args[0],key,value,defvalue );
+            System.arraycopy(defvalue, 0, value, 0, defvalue.length);
         }
 
-        linked = (value[0].equals( "linked" ));
-        // linked = false;
-        capacity = Integer.parseInt( value[4] );
-        duration = Integer.parseInt( value[5] );
-        elevators = Integer.parseInt( value[3] );
-        floors = Integer.parseInt( value[1] );
-        prob = Double.parseDouble( value[2] );
+        linked = (value[0].equals("linked"));
+        capacity = Integer.parseInt(value[4]);
+        duration = Integer.parseInt(value[5]);
+        elevators = Integer.parseInt(value[3]);
+        floors = Integer.parseInt(value[1]);
+        prob = Double.parseDouble(value[2]);
 
         System.out.println( "\n-- actual values --\n" );
         System.out.println( "structures       = "+"\""+value[0]+"\"" );
@@ -58,293 +58,331 @@ public class Lifts {
         System.out.println( "duration         = "+duration + "\n");
 
         /*------------------------------------------------------------*/
-        /* initializing stuff					      */
+        /* initializing				                                  */
         /*------------------------------------------------------------*/
 
-        duration = 1000;				// actually used here
-        elevators = 4;				// "
-        floors = 10;				// "
-        prob = 0.032;				// "  1/32, exact
-
-
-        Elevator [] elevatorArr=new Elevator [elevators];
-        Floor [] floorArr=new Floor [floors+1];
-        Boolean [] pushUp=new Boolean [floors+1];
-        Boolean [] pushDown=new Boolean [floors+1];
-        Integer [] wait=new Integer [floors+1];
-        for ( int e = 0;  e < elevators;  e++ ) {
+        up = 0;
+        down = 1;
+        Elevator[] elevatorArr = new Elevator[elevators];
+        Floor[] floorArr = new Floor[floors + 1];
+        Boolean[] pushUp = new Boolean[floors + 1];
+        Boolean[] pushDown = new Boolean[floors + 1];
+        Integer[] wait = new Integer[floors + 1];
+        for (int e = 0; e < elevators; e++) {
             elevatorArr[e] = new Elevator();
         }
-        for ( int f = 0;  f <= floors;  f++ ) {
+        for (int f = 1; f <= floors; f++) {
             floorArr[f] = new Floor();
-        }
-        for ( int f = 1;  f <= floors;  f++ ) {
-            pushUp[f] = pushDown[f] = false;// call elevator buttons
+            pushUp[f] = pushDown[f] = false; // no elevator buttons called yet
             wait[f] = 0;
         }
-        minTime = Integer.MAX_VALUE;		// for min
-        maxTime = totalTime = 0;			// for mean, max
-        pID = visitors = reachedDest = 0;	// people id's; visitors; who reach dest
+
+        minTime = Integer.MAX_VALUE;        // min, max
+        maxTime = totalTime = 0;
+        pID = visitors = reachedDest = 0;    // visitors & people who reach destination
 
         /*------------------------------------------------------------*/
-        /* the actual work					      */
+        /* ticks and movement				                          */
         /*------------------------------------------------------------*/
 
-        long t = System.currentTimeMillis();
-        for ( tick = 1;  tick <= duration;  tick++ ) {
-            arrivals( floorArr,wait,pushUp,pushDown );
-            departures( floorArr,wait,pushUp,pushDown,elevatorArr );
+       // long t = System.currentTimeMillis();
+        for (tick = 1; tick <= duration; tick++) {
+            arrivals(floorArr, wait, pushUp, pushDown);
+            departures(floorArr, wait, pushUp, pushDown, elevatorArr);
         }
-        t = System.currentTimeMillis()-t;
+       // t = System.currentTimeMillis() - t;
 
         /*------------------------------------------------------------*/
-        /* the results						      */
+        /* results						                              */
         /*------------------------------------------------------------*/
 
-        int riders=0,waiters=0;				// riders, waiters
+        int riders = 0, waiters = 0;
 
-        for ( int f = 1;  f <= floors;  f++ ) {
-            if ( 0 < wait[f] ) {
+        for (int f = 1; f <= floors; f++) {
+            if (0 < wait[f]) {
                 waiters += wait[f];
-                // System.out.format( "%4d-th floor:",f );
-                // floorArr[f].display();
+//                 System.out.format( "%4d-th floor:",f );
+//                 floorArr[f].display();
             }
         }
-        for ( int e = 0;  e < elevators;  e++ ) {
+        for (int e = 0; e < elevators; e++) {
             Elevator car = elevatorArr[e];
-            if ( 0 < car.Load() ) {
+            if (0 < car.Load()) {
                 riders += car.Load();
 //                System.out.format( "%4d-th elevator:",e );
 //                car.display();
             }
         }
+
         System.out.println(visitors + " total visitors.");
         System.out.println(reachedDest + " passengers got to their destination.");
         System.out.println(waiters + " persons waiting on floors.");
         System.out.println(riders + " passengers riding in elevator(s).");
         System.out.println("-----------------------------" );
 
-        if(minTime < Integer.MAX_VALUE){
-            System.out.println( minTime + " minimum time from arrival to destination");
-        } else{
+        if (minTime < Integer.MAX_VALUE) {
+            System.out.println(minTime + " minimum time from arrival to destination");
+        } else {
             System.out.println("0 minimum time from arrival to destination.");
         }
-        if (reachedDest > 0){
-            int mean = totalTime / reachedDest ;
-            System.out.println(mean + " mean time from arrival to destination");
-        } else{
+        if (reachedDest > 0) {
+            double mean = (double) totalTime / (double) reachedDest;
+            System.out.format("%7.2f mean time from arrival to destination \n", mean);
+        } else {
             System.out.println(0 + " mean time from arrival to destination");
         }
         System.out.println(maxTime + " maximum time from arrival to destination.");
-        System.out.println( t + " milliseconds to perform simulation." );
+        // System.out.println( t + " milliseconds to perform simulation." );
     }
 
-    private static void arrivals( Floor [] floorArr,Integer [] wait,
-                                  Boolean [] pushUp,Boolean [] pushDown) {
+    private static void arrivals(Floor[] floorArr, Integer[] wait,
+                                 Boolean[] pushUp, Boolean[] pushDown) {
 
-        for ( int f = 1;  f <= floors;  f++ ) {
-           // System.out.format( "-- arrivals: f =%2d --\n",f );
+        for (int f = 1; f <= floors; f++) {
+            // System.out.format( "-- arrivals: f =%2d --\n",f );
             Floor floor = floorArr[f];
-            int n = npersons();	// usually 0
+            int n = npersons();    // usually 0
             //System.out.format( "-- arrivals: f =%3d, n =%2d --\n",f,n );
             visitors += n;
             wait[f] += n;
-            for ( int i = n;  0 < i--; ) {	// n times
-                Person p = new Person( f,pushUp,pushDown );
+            for (int i = n; 0 < i--; ) {    // n times
+                Person p = new Person(f);
 //                System.out.format( "-- tick%4d - no."+
 //                        "%4d enters on floor%3d, dest =%"+
 //                        "3d\n",tick,p.Id(),f,p.Dest() );
-                floor.append( p );
+                floor.append(p);
             }
-            if ( n != 0 ) {
-                floor.ckButtons( f,pushUp,pushDown );
+            if (0 < n) {
+                floor.ckButtons(f, pushUp, pushDown);
             }
         }
     }
 
-    private static void departures( Floor [] floorArr,Integer [] wait,
-                                    Boolean [] pushUp,Boolean [] pushDown,Elevator [] elevatorArr ) {
+    private static void departures(Floor[] floorArr, Integer[] wait,
+                                   Boolean[] pushUp, Boolean[] pushDown, Elevator[] elevatorArr) {
 
-        for ( int e = 0;  e < elevators;  e++ ) {
+        for (int e = 0; e < elevators; e++) {
             Elevator car = elevatorArr[e];
             int curr = car.Curr();
-            if ( 0 < car.Load() ) {
-                car.unload( curr );
+            if (0 < car.Load()) {
+                car.unload(curr);
             }
-            int dir = (car.Prev() < curr ? 0 : 1); // 0 up 1 down, direction
-            if ( wait[curr] != 0 ) {
-                car.getPassengers( floorArr[curr],wait,curr,
-                        pushUp,pushDown,e,dir );
+            int dir = car.Dir(); // 0 up 1 down, direction
+            if (wait[curr] != 0) {
+                car.getPassengers(floorArr[curr], wait, curr,
+                        pushUp, pushDown, e,dir);
             }
-            car.toNextFloor( curr,dir,pushUp,pushDown );
+            car.toNextFloor(curr, dir, pushUp, pushDown);
         }
     }
 
 
-    private static void getvalues( String fname,String [] key,String [] v,
-                                   String [] dv ) {
+    private static void getvalues(String fname, String[] key, String[] v,
+                                  String[] dv) {
 
         try {
-            FileReader reader = new FileReader( fname );
+            FileReader reader = new FileReader(fname);
             Properties p = new Properties();
-            p.load( reader );
-            for ( int i = 0;  i < key.length;  i++ ) {
-                v[i] = p.getProperty( key[i] );
-                if ( v[i] == null ) {
+            p.load(reader);
+            for (int i = 0; i < key.length; i++) {
+                v[i] = p.getProperty(key[i]);
+                if (v[i] == null) {
                     v[i] = dv[i];
                 }
             }
-        } catch ( Exception e ) {
-            System.out.println( "** bad properties file? **" );
-            System.exit( 0 );
+        } catch (Exception e) {
+            System.out.println("ERROR: BAD PROPERTIES FILE.");
+            System.exit(0);
         }
     }
 
     private static int npersons() {
 
-        return( (prob < new Random().nextDouble() ? 0 : 1) );
+        return ((new Random().nextDouble() > prob ? 0 : 1)); // if 0, no new person
     }
 
     /*--------------------------------------------------------------------*/
-    /* Declare: Random rand=new Random(); in calling function.	      */
-    /* Returns randomly generated int in [0,Integer.MAX_VALUE].	      */
+    /* Returns randomly generated int in [0,Integer.MAX_VALUE]	          */
     /*--------------------------------------------------------------------*/
 
-    private static int random( Random rand ) {
+    private static int random(Random rand) {
 
         int r = rand.nextInt();
-        if ( r == Integer.MIN_VALUE ) {
+        if (r == Integer.MIN_VALUE) {
             r = Integer.MAX_VALUE;
         }
-        if ( r < 0 ) {
+        if (r < 0) {
             r = -r;
         }
-        return( r );
+        return (r);
     }
 
     private static class Elevator {
 
         /*--------------------------------------------------------------------*/
-        /* private data members - Elevator				      */
+        /* private data members: Elevator		                              */
         /*--------------------------------------------------------------------*/
 
-        private Passenger head,tail;	// an Elevator is a doubly linked list
-        private ArrayList<Passenger> eList;	// or an ArrayList
-        private int curr,load,prev;
+        private Passenger head, tail;    // an Elevator is a doubly linked list
+        private ArrayList<Passenger> eList;    // or an ArrayList
+        private int curr, dir, load; // current floor, direction of elevator,
+        // num of passengers.
 
         /*--------------------------------------------------------------------*/
-        /* constructor - Elevator					      */
+        /* constructor: Elevator				                              */
         /*--------------------------------------------------------------------*/
 
         Elevator() {
 
-            head = tail = null;
-            this.eList = new ArrayList<Passenger>();
-            load = prev = 0;			// must go up from 1
-            curr = 1;
+            if (linked) {
+                head = tail = null;
+            } else {
+                eList = new ArrayList<Passenger>();
+            }
+            curr = 1; // 1st floor
+            dir = up; // = 0
+            load = 0;
         }
 
         /*--------------------------------------------------------------------*/
-        /* accessors/mutators - Elevator				      */
+        /* accessors/mutators: Elevator				                          */
         /*--------------------------------------------------------------------*/
 
         private int Curr() {
-            return( curr );
+            return (curr);
         }
 
         private int Load() {
-            return( load );
+            return (load);
         }
 
-        private int Prev() {
-            return( prev );
+        private int Dir() {
+            return (dir);
         }
 
-        private void setCurr( int f ) {
-            curr = f;
+        private void setCurr(int floor) {
+            curr = floor;
         }
 
-        private void setPrev( int f ) {
-            prev = f;
+        private void setDir(int direction) {
+            dir = direction;
         }
 
         /*--------------------------------------------------------------------*/
-        /* private methods - Elevator					      */
+        /* private methods: Elevator					                      */
         /*--------------------------------------------------------------------*/
 
-        private void accept( Passenger p ) {
+        private void accept(Passenger p) {
 
-            if ( linked ) {
-                if ( head == null ) {
-                    head = p;
-                    p.blink = null;
-                } else {
-                    tail.flink = p;
-                    p.blink = tail;
-                }
-                tail = p;
+            if (linked) {
+                add(p);
             } else {
-                eList.add( p );
+                eList.add(p);
             }
             load++;
         }
 
-        private void display() {
-
-            int i = 0;
-            Passenger p = (linked ? head : eList.get( i++ ));
-            while ( p != null ) {
-                //System.out.print( " ["+p.id+","+p.arr+","+p.dest+"]" );
-                p = nextPassenger( p,i++ );
+        private void add(Passenger p) { // for linked list, flink = forwards link ; blink = backwards link
+            // list is empty
+            if (tail == null) {
+                head = p;
+                head.blink = null;
             }
-          // System.out.println();
+            // add new node to the end
+            else {
+                p.blink = tail;
+                tail.flink = p;
+            }
+            tail = p;
+            tail.flink = null;
         }
 
-        private void getPassengers( Floor floor,Integer [] wait,int curr,
-                                    Boolean [] pushUp,Boolean [] pushDown,int e,int dir ) {
+//        private void display() {
+//
+//            int i = 0;
+//            Passenger p = firstPassenger() ;
+//            while ( p != null ) {
+//                //System.out.print( " ["+p.id+","+p.arr+","+p.dest+"]" );
+//                p = nextPassenger( p, ++i );
+//            }
+//          // System.out.println();
+//        }
+
+        private Passenger firstPassenger() {
+            return (linked ? head : eList.get(0));
+        }
+
+        private void getPassengers(Floor floor, Integer[] wait, int curr,
+                                   Boolean[] pushUp, Boolean[] pushDown, int e, int dir) {
 
             int i = 0;
-            Person p = (linked ? floor.Head() : floor.Get( i++ ));
-            while ( p != null ) {
-                if ( capacity <= load ) {
+            Person p = floor.firstPerson();
+            while (p != null) {
+                if (capacity <= load) {
                     break;
                 }
-                int dirPerson = (curr < p.Dest() ? 0 : 1); // direction a person is going
-                if ( dirPerson == dir ) {
-                    accept( new Passenger( p.Id(),p.Arr(),
-                            p.Dest() ) );
+                if (p.Dir() == dir) {
+                    accept(new Passenger(p.Id(), p.Arr(),
+                            p.Dest()));
 //                    System.out.format( "-- tick%4d - no.%4d enters"+
 //                            " elevator%3d:",tick,p.Id(),e );
-                    display();
-                    floor.enterElevator( p ); // person enters elevator
+                    //display();
+                    floor.goodbye(p);
                     wait[curr]--;
                 }
-                p = floor.nextPerson( p,i++ );
+                p = floor.nextPerson(p, ++i);
             }
-            floor.ckButtons( curr,pushUp,pushDown );			// check buttons
+            if (wait[curr] == 0) {
+                pushUp[curr] = pushDown[curr] = false;
+            } else {
+                floor.ckButtons(curr, pushUp, pushDown);
+            }
         }
 
-        private int goodbye( Passenger p ) { // passenger leaving elevator
+        private void goNext(int destFloor, int dir) {
+            int topFloor = floors; // # of floors = top floor
 
-            if ( linked ) {
-                remove(p) ;
+            setCurr(destFloor);
+            if (destFloor == 1) {
+                setDir(up); // must go up
+                return;
+            }
+            if (destFloor == topFloor) {
+                setDir(down); // must go down
+                return;
+            }
+            setDir(dir);
+        }
+
+        private int goodbye(Passenger p) { // passenger leaving elevator
+
+            if (linked) {
+                remove(p);
             } else {
-                eList.remove( p );
+                eList.remove(p);
             }
 //            System.out.format( "-- tick%4d - no.%4d exits  on floor%3d\n",
 //                    tick,p.Id(),p.Dest() );
             --load;
             reachedDest++;
-            return( tick-p.Arr() );
+            return (tick - p.Arr());
         }
 
-        private void remove(Passenger p){
-            if ( p == head ) {
+        private Passenger nextPassenger(Passenger p, int i) {
+            if (linked) {
+                return (p.flink); // forward link
+            } else {
+                return ( ((i < eList.size()) ? eList.get(i) : null) ); // ensures no index out of bounds
+            }
+        }
+
+        private void remove(Passenger p) {
+            if (p == head) {
                 head = p.flink; // forward link
             } else {
                 p.blink.flink = p.flink;
             }
-            if ( p == tail ) {
+            if (p == tail) {
                 tail = p.blink; // backwards link
             } else {
                 p.flink.blink = p.blink;
@@ -352,88 +390,67 @@ public class Lifts {
 
         }
 
-        private Passenger nextPassenger( Passenger p,int i ) {
+        private void toNextFloor(int curr, int dir, Boolean[] pushUp,
+                                 Boolean[] pushDown) {
+            int i, j;
 
-            if ( linked ) {
-                return( p.flink );
-            } else {
-                return (i < eList.size() ? eList.get(i) : null) ;
+            if (load == 0) {                // empty car
+                for (i = curr; i < floors - 1; ) {
+                    if (pushUp[++i]) { // want to go up
+                        goNext(Math.min(i, curr + M), up);
+                        return;
+                    }
+                }            // nobody above wants up
+                for (i = curr; i < floors; ) {
+                    if (pushDown[++i]) { // want to go down
+                        goNext(Math.min(i, curr + M), down);
+                        return;
+                    }
+                }            // nobody above wants down
+                for (j = curr; 2 < j; ) {
+                    if (pushDown[--j]) { // want to go down
+                        goNext(Math.max(j, curr - M), down);
+                        return;
+                    }
+                }            // nobody below wants down
+                for (j = curr; 2 <= j; ) {
+                    if (pushUp[--j]) { // want to go up
+                        goNext(Math.max(j, curr - M), up);
+                        return;
+                    }
+                }            // nobody below wants up
+                return;    // don't move
             }
-        }
-
-
-
-        private void toNextFloor( int curr,int dir,Boolean [] pushUp,
-                                  Boolean [] pushDown ) {
-            int i,j,k;
-
-            if ( load == 0 ) {				// empty car
-                for ( i = curr;  i < floors-1; ) {
-                    if ( pushUp[++i] ) {
-                        i = Math.min( i,curr+M );
-                        setPrev( i-1 );
-                        setCurr( i );		// go to i
-                        return;
-                    }
-                }			// nobody above wants up
-                for ( i = curr;  i < floors; ) {
-                    if ( pushDown[++i] ) {
-                        i = Math.min( i,curr+M );
-                        setPrev( i+1 );
-                        setCurr( i );		// go to i
-                        return;
-                    }
-                }			// nobody above wants down
-                for ( j = curr;  2 < j; ) {
-                    if ( pushDown[--j] ) {
-                        j = Math.max( j,curr-M );
-                        setPrev( j+1 );
-                        setCurr( j );		// go to j
-                        return;
-                    }
-                }			// nobody below wants down
-                for ( j = curr;  2 <= j; ) {
-                    if ( pushUp[--j] ) {
-                        j = Math.max( j,curr-M );
-                        setPrev( j-1 );
-                        setCurr( j );		// go to j
-                        return;
-                    }
-                }			// nobody below wants up
-                return;
-            }
-            if ( dir == 0 ) {			// going up
+            if (dir == up) {
                 i = floors;
-                k = 0;
-                Passenger p = (linked ? head : eList.get( k++ ));
-                while ( p != null ) {
+                j = 0;
+                Passenger p = firstPassenger();
+                while (p != null) {
                     int d = p.Dest();
-                    if ( d <= i ) {
-                        i = d;
+                    if (d < i) {
+                        i = d; // passenger destination
                     }
-                    p = nextPassenger( p,k++ );
+                    p = nextPassenger(p, ++j);
                 }
-                for ( j = curr;  j < floors; ) {
-                    if ( pushUp[++j] ) {	// going up?
+                for (j = curr; j < floors; ) {
+                    if (pushUp[++j]) {    // going up?
                         break;
                     }
                 }
-                if ( j < i ) {
+                if (j < i) {
                     i = j;
                 }
-                i = Math.min( i,curr+M );
-                setPrev( i-1 );
-                setCurr( i );
+                goNext((Math.min(i, curr + M)), up);
             } else {                // going down
                 i = 1;                // bottom floor
-                k = 0;
-                Passenger p = (linked ? head : eList.get(k++));
+                j = 0;
+                Passenger p = firstPassenger();
                 while (p != null) {
                     int d = p.Dest();
-                    if (i <= d) {
+                    if (i < d) {
                         i = d;
                     }
-                    p = nextPassenger(p, k++);
+                    p = nextPassenger(p, ++j);
                 }
                 for (j = curr; 1 < j; ) {
                     if (pushDown[--j]) {
@@ -443,117 +460,100 @@ public class Lifts {
                 if (j < i) {
                     j = i;
                 }
-                j = Math.max(j, curr - M);
-                setPrev(j + 1);
-                setCurr(j);
+                goNext(Math.max(j, curr - M), down);
             }
         }
 
-        private void unload( int floor ) {
+        private void unload(int floor) {
 
-            //System.out.println( "-- unloading --" );
             int i = 0;
-            Passenger p = (linked ? head : eList.get( i++ ));
-            while ( p != null ) {
-                if ( p.Dest() == floor ) {
-                    int t = goodbye( p ); //passenger leaving elevator
-                    if ( t < minTime ) {
-                        minTime = t;	// new min time
-                    }
-                    totalTime += t;		// sum of times
-                    if ( maxTime < t ) {
-                        maxTime = t;	// new max time
-                    }
+            Passenger p = firstPassenger();
+            while (p != null) {
+                if (p.Dest() == floor) {
+                    int t = goodbye(p); //passenger leaving elevator
+                    updateTimes(t);
                 }
-                p = nextPassenger( p,i++ );
+                p = nextPassenger(p, ++i);
             }
-            //System.out.println( "-- unloaded --" );
+        }
+
+        private void updateTimes(int t) {
+            if (t < minTime){
+                minTime = t ;
+            }
+            totalTime += t ;
+            if (maxTime < t){
+                maxTime = t ;
+            }
         }
     }
 
     private static class Floor {
 
         /*--------------------------------------------------------------------*/
-        /* private data members - Floor					      */
+        /* private data members: Floor				                          */
         /*--------------------------------------------------------------------*/
 
-        private Person head,tail;	// a Floor is a doubly linked list
-        private ArrayList<Person> fList; // or not
+        private Person head, tail;    // a Floor is a doubly linked list
+        private ArrayList<Person> fList; // or array list
 
         /*--------------------------------------------------------------------*/
-        /* constructor - Floor						      */
+        /* constructor: Floor					                              */
         /*--------------------------------------------------------------------*/
 
         Floor() {
-
-            head = tail = null;	// empty Floor
-            this.fList = new ArrayList<Person>();
+            if (linked) {
+                head = tail = null; // empty floor
+            } else {
+                fList = new ArrayList<Person>(); // empty arr list
+            }
         }
 
         /*--------------------------------------------------------------------*/
-        /* accessor - Floor						      */
+        /* private methods: Floor				                              */
         /*--------------------------------------------------------------------*/
-
-        private ArrayList<Person> Flist() {
-            return( fList );
-        }
-
-        private Person Get( int i ) {
-            return( fList.get( i ) );
-        }
-
-        private Person Head() {
-            return( head );
-        }
-
-        /*--------------------------------------------------------------------*/
-        /* private methods - Floor					      */
-        /*--------------------------------------------------------------------*/
-        private void add(Person p ){
-            if ( head == null ) {
+        private void add(Person p) {
+            if (tail == null) {
                 head = p;
-                p.blink = null;
+                head.blink = null;
             } else {
-                tail.flink = p;
                 p.blink = tail;
+                tail.flink = p;
             }
-            p.flink = null;
             tail = p;
-
+            tail.flink = null;
         }
-        private void append( Person p ) {
 
-            if ( linked ) {
-               add(p);
+        private void append(Person p) {
+
+            if (linked) {
+                add(p);
             } else {
-                fList.add( p );
+                fList.add(p);
             }
         }
 
-        private void ckButtons( int curr,Boolean [] pushUp,Boolean [] pushDown ) {
+        private void ckButtons(int curr, Boolean[] pushUp, Boolean[] pushDown) {
             int i;
 
-            if(!linked && fList.isEmpty()){
-                return ;
-            }
             pushUp[curr] = pushDown[curr] = false;
             i = 0;
-            Person p = (linked ? head : fList.get( i++ ));
-            while ( p != null ) {
-                if ( curr < p.Dest() ) {
+            Person p = firstPerson();
+            while (p != null) {
+                if (p.Dir() == up) {
                     pushUp[curr] = true;
                     break;
                 }
-                p = nextPerson( p,i++ );
+                p = nextPerson(p, ++i);
             }
             i = 0;
-            p = (linked ? head : fList.get( i++ ));
-            while ( p != null ) {
-                if ( p.Dest() < curr ) {
+            p = firstPerson();
+            while (p != null) {
+                if (p.Dir() == down) {
                     pushDown[curr] = true;
                     break;
                 }
-                p = nextPerson( p,i++ );
+                p = nextPerson(p, ++i);
             }
         }
 
@@ -568,30 +568,36 @@ public class Lifts {
 //            System.out.println();
 //        }
 
-        private void enterElevator( Person p ) { // person to passenger. person enters elevator
+        private Person firstPerson() {
+            return (linked ? head : fList.get(0));
+        }
 
-            if ( linked ) {
-                if ( p == head ) {
-                    head = p.flink;
-                } else {
-                    p.blink.flink = p.flink;
-                }
-                if ( p == tail ) {
-                    tail = p.blink;
-                } else {
-                    p.flink.blink = p.blink;
-                }
+        private void goodbye(Person p) {
+            if (linked) {
+                remove(p);
             } else {
-                fList.remove( p );
+                fList.remove(p);
             }
         }
 
-        private Person nextPerson( Person p,int i ) {
-
-            if ( linked ) {
-                return( p.flink );
+        private Person nextPerson(Person p, int i) {
+            if (linked) {
+                return (p.flink);
             } else {
-                return (i < fList.size() ? fList.get(i) : null) ;
+                return (i < fList.size() ? fList.get(i) : null);
+            }
+        }
+
+        private void remove(Person p ){
+            if (p == head){
+                head = p.flink ;
+            } else{
+                p.blink.flink = p.flink ;
+            }
+            if (p == tail){
+                tail = p.blink ;
+            } else{
+                p.flink.blink = p.blink ;
             }
         }
     }
@@ -599,99 +605,112 @@ public class Lifts {
     private static class Passenger {
 
         /*--------------------------------------------------------------------*/
-        /* private data members - Passenger				      */
+        /* private data members: Passenger				                      */
         /*--------------------------------------------------------------------*/
 
-        private Passenger blink;	// a Passenger is a node
+        private Passenger blink;    // a Passenger is a node
         private int id;
         private int arr;
         private int dest;
         private Passenger flink;
 
         /*--------------------------------------------------------------------*/
-        /* constructor - Passenger					      */
+        /* constructor: Passenger					                          */
         /*--------------------------------------------------------------------*/
 
-        Passenger( int id0,int arr0,int dest0 ) {
+        Passenger(int idNum, int arrivalTime, int destFloor) {
 
-            id = id0;
-            arr = arr0;
-            dest = dest0;
+            if (linked) {
+                blink = flink = null;
+            }
+            id = idNum;
+            arr = arrivalTime;
+            dest = destFloor;
         }
 
         /*--------------------------------------------------------------------*/
-        /* accessors - Passenger					      */
+        /* accessors: Passenger					                              */
         /*--------------------------------------------------------------------*/
 
         private int Arr() {
-            return( arr );
+            return (arr);
         }
 
         private int Dest() {
-            return( dest );
+            return (dest);
         }
 
         private int Id() {
-            return( id );
+            return (id);
         }
     }
 
     private static class Person {
 
         /*--------------------------------------------------------------------*/
-        /* private data members - Person				      */
+        /* private data members: Person				                          */
         /*--------------------------------------------------------------------*/
 
-        private Person blink;		// if a Person is a node
+        private Person blink;        // if a Person is a node
         private int id;
         private int arr;
         private int dest;
-        private Person flink;		// if a Person is a node
+        private int dir;
+        private Person flink;        // if a Person is a node
 
         /*--------------------------------------------------------------------*/
-        /* constructor - Person						      */
+        /* constructor: Person						                          */
         /*--------------------------------------------------------------------*/
 
-        Person( int floor,Boolean [] pushUp,Boolean [] pushDown ) {
+        Person(int floor) {
+
+            if (linked) {
+                blink = flink = null;
+            }
 
             id = ++pID;
             arr = tick;
-            dest = destfloor( floor );
+            dest = destFloor(floor);
+            dir = (floor < dest ? up : down);
+
         }
-
-        private static int destfloor( int floor ) {
-            Random rand=new Random();
-
-            if ( floor == 1 ) {
-                return( (random( rand ) % (floors-1))+2 );
-                // 2 <= ? <= floors
-            }
-            if ( (random( rand ) % PF) != 0 ) {
-                return( 1 );	// to floor 1	// probability of this
-                //  equals (PF-1)/PF
-            }
-            int r = (random( rand ) % (floors-2))+2; // 2 <= r < floors
-            return( (r < floor ? r : r+1) );     // 2 <= ? != 1 <= floors
-        }
-
         /*--------------------------------------------------------------------*/
-        /* accessors - Person						      */
+        /* accessors - Person						                          */
         /*--------------------------------------------------------------------*/
 
         private int Arr() {
-            return( arr );
+            return (arr);
         }
 
         private int Dest() {
-            return( dest );
+            return (dest);
         }
 
-        private Person Flink() {
-            return flink;
+        private int Dir() {
+            return dir;
         }
 
         private int Id() {
             return id;
         }
+    }
+
+
+    /*-------------------------------------------------------------------*/
+    /* private method: Person                                            */
+    /*-------------------------------------------------------------------*/
+    private static int destFloor(int floor) {
+        Random rand = new Random();
+
+        if (floor == 1) {
+            return ((random(rand) % (floors - 1)) + 2);
+            // 2 <= ? <= floors
+        }
+        if ((random(rand) % PF) != 0) {
+            return (1);    // to floor 1	// probability of this
+            //  equals (PF-1)/PF
+        }
+        int r = (random(rand) % (floors - 2)) + 2; // 2 <= r < floors
+        return ((r < floor ? r : r + 1));     // 2 <= ? != 1 <= floors
     }
 }
