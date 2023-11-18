@@ -1,4 +1,9 @@
-//verbose mode?
+
+/* ------------------------------------------------------------------------ */
+/* LIFTS.JAVA : elevator simulation using ArrayLists and DoublyLinkedLists. */
+/* Add a properties file arg[0] to change building properties.              */
+/* Type "verbose" arg[1] to run in verbose mode                             */
+/* ------------------------------------------------------------------------ */
 
 import java.io.*;
 import java.util.Properties;
@@ -9,8 +14,7 @@ import java.lang.Math ;
 public class Lifts {
     private static final int M = 5;    // max distance elevator moves per tick
     private static final int PF = 3;    // prob (PF-1)/PF that person on floor != 1
-    //  chooses floor 1 as next destination floor
-
+                                        //  chooses floor 1 as next destination floor
 
     /*------------------------------------------------------------*/
     /* global variables					                          */
@@ -19,7 +23,7 @@ public class Lifts {
     static double prob;            // "passengers" in file
     static int capacity, duration, elevators, floors, maxTime, minTime, pID,
             tick, totalTime, visitors, reachedDest, up, down;
-    static Boolean linked;
+    static Boolean linked, verbose;
 
     public static void main(String[] args) throws IOException {
 
@@ -49,13 +53,26 @@ public class Lifts {
         floors = Integer.parseInt(value[1]);
         prob = Double.parseDouble(value[2]);
 
-        System.out.println( "\n-- actual values --\n" );
-        System.out.println( "structures       = "+"\""+value[0]+"\"" );
-        System.out.println( "floors           = "+floors );
-        System.out.println( "passengers       = "+prob );
-        System.out.println( "elevators        = "+elevators );
-        System.out.println( "elevatorCapacity = "+capacity );
-        System.out.println( "duration         = "+duration + "\n");
+        /*------------------------------------------------------------*/
+        /* verbose mode			                                      */
+        /*------------------------------------------------------------*/
+        verbose = false ;
+        if (args.length > 1){
+            if (args[1].equals("verbose")){
+                verbose = true ;
+                System.out.println("\n ** RUNNING IN VERBOSE MODE ** ") ;
+            }
+        }
+
+        if (verbose){
+            System.out.println( "\n-- actual values --\n" );
+            System.out.println( "structures       = "+"\""+value[0]+"\"" );
+            System.out.println( "floors           = "+floors );
+            System.out.println( "passengers       = "+prob );
+            System.out.println( "elevators        = "+elevators );
+            System.out.println( "elevatorCapacity = "+capacity );
+            System.out.println( "duration         = "+duration + "\n");
+        }
 
         /*------------------------------------------------------------*/
         /* initializing				                                  */
@@ -69,28 +86,28 @@ public class Lifts {
         Boolean[] pushDown = new Boolean[floors + 1];
         Integer[] wait = new Integer[floors + 1];
         for (int e = 0; e < elevators; e++) {
-            elevatorArr[e] = new Elevator();
+            elevatorArr[e] = new Elevator(); // arr of elevators
         }
         for (int f = 1; f <= floors; f++) {
-            floorArr[f] = new Floor();
-            pushUp[f] = pushDown[f] = false; // no elevator buttons called yet
+            floorArr[f] = new Floor();        // arr of floors
+            pushUp[f] = pushDown[f] = false; // no elevator buttons called yet, no people waiting
             wait[f] = 0;
         }
 
         minTime = Integer.MAX_VALUE;        // min, max
         maxTime = totalTime = 0;
-        pID = visitors = reachedDest = 0;    // visitors & people who reach destination
+        pID = visitors = reachedDest = 0;    // total visitors & visitors who reach destination
 
         /*------------------------------------------------------------*/
         /* ticks and movement				                          */
         /*------------------------------------------------------------*/
 
-       // long t = System.currentTimeMillis();
+       long t = System.currentTimeMillis();
         for (tick = 1; tick <= duration; tick++) {
             arrivals(floorArr, wait, pushUp, pushDown);
             departures(floorArr, wait, pushUp, pushDown, elevatorArr);
         }
-       // t = System.currentTimeMillis() - t;
+       t = System.currentTimeMillis() - t;
 
         /*------------------------------------------------------------*/
         /* results						                              */
@@ -101,55 +118,67 @@ public class Lifts {
         for (int f = 1; f <= floors; f++) {
             if (0 < wait[f]) {
                 waiters += wait[f];
-//                 System.out.format( "%4d-th floor:",f );
-//                 floorArr[f].display();
             }
         }
         for (int e = 0; e < elevators; e++) {
             Elevator car = elevatorArr[e];
             if (0 < car.Load()) {
                 riders += car.Load();
-//                System.out.format( "%4d-th elevator:",e );
-//                car.display();
             }
         }
 
-        System.out.println(visitors + " total visitors.");
-        System.out.println(reachedDest + " passengers got to their destination.");
-        System.out.println(waiters + " persons waiting on floors.");
-        System.out.println(riders + " passengers riding in elevator(s).");
-        System.out.println("-----------------------------" );
+        if (verbose){
+            System.out.println("\n" + visitors + " total visitors.");
+            System.out.println(reachedDest + " passengers got to their destination.");
+            System.out.println(waiters + " persons waiting on floors.");
+            System.out.println(riders + " passengers riding in elevator(s).");
+            System.out.println("-----------------------------" );
+            System.out.println( t + " milliseconds to perform simulation." );
+        }
 
         if (minTime < Integer.MAX_VALUE) {
-            System.out.println(minTime + " minimum time from arrival to destination");
+            System.out.format("%4d minimum time from arrival to destination. \n", minTime);
         } else {
-            System.out.println("0 minimum time from arrival to destination.");
+            System.out.format("0 minimum time from arrival to destination.\n");
         }
+
         if (reachedDest > 0) {
             double mean = (double) totalTime / (double) reachedDest;
-            System.out.format("%7.2f mean time from arrival to destination \n", mean);
+            System.out.format("%7.2f mean time from arrival to destination. \n", mean);
         } else {
-            System.out.println(0 + " mean time from arrival to destination");
+            System.out.format(0 + " mean time from arrival to destination. \n");
         }
-        System.out.println(maxTime + " maximum time from arrival to destination.");
-        // System.out.println( t + " milliseconds to perform simulation." );
+
+        if (maxTime > Integer.MIN_VALUE){
+            System.out.format("%4d maximum time from arrival to destination. \n", maxTime);
+        } else{
+            System.out.format(0 + " maximum time from arrival to destination. \n");
+        }
     }
 
+    // arrivals() : a person arrives on a floor //
     private static void arrivals(Floor[] floorArr, Integer[] wait,
                                  Boolean[] pushUp, Boolean[] pushDown) {
 
         for (int f = 1; f <= floors; f++) {
-            // System.out.format( "-- arrivals: f =%2d --\n",f );
             Floor floor = floorArr[f];
             int n = npersons();    // usually 0
-            //System.out.format( "-- arrivals: f =%3d, n =%2d --\n",f,n );
             visitors += n;
             wait[f] += n;
+
+            if (verbose){
+                System.out.format( "-- arrivals: f =%3d, n =%2d --\n",f,n );
+            }
+
             for (int i = n; 0 < i--; ) {    // n times
                 Person p = new Person(f);
-//                System.out.format( "-- tick%4d - no."+
-//                        "%4d enters on floor%3d, dest =%"+
-//                        "3d\n",tick,p.Id(),f,p.Dest() );
+
+                if (verbose){
+                    System.out.format( "-- tick%4d - no."+
+                            "%4d enters on floor%3d, dest =%"+
+                            "3d\n",tick,p.Id(),f,p.Dest() );
+                }
+
                 floor.append(p);
             }
             if (0 < n) {
@@ -158,6 +187,8 @@ public class Lifts {
         }
     }
 
+    // departures(): unload people if they want to get off &
+    // get people if they are going in same direction as elevator
     private static void departures(Floor[] floorArr, Integer[] wait,
                                    Boolean[] pushUp, Boolean[] pushDown, Elevator[] elevatorArr) {
 
@@ -196,6 +227,7 @@ public class Lifts {
         }
     }
 
+    //npersons() creates new person based on probability
     private static int npersons() {
 
         return ((new Random().nextDouble() > prob ? 0 : 1)); // if 0, no new person
@@ -260,11 +292,11 @@ public class Lifts {
             return (dir);
         }
 
-        private void setCurr(int floor) {
+        private void setCurr(int floor) { // makes you go to specific floor
             curr = floor;
         }
 
-        private void setDir(int direction) {
+        private void setDir(int direction) { // sets current direction
             dir = direction;
         }
 
@@ -272,6 +304,7 @@ public class Lifts {
         /* private methods: Elevator					                      */
         /*--------------------------------------------------------------------*/
 
+        // accept(): accept a passenger in the elevator
         private void accept(Passenger p) {
 
             if (linked) {
@@ -297,16 +330,18 @@ public class Lifts {
             tail.flink = null;
         }
 
-//        private void display() {
-//
-//            int i = 0;
-//            Passenger p = firstPassenger() ;
-//            while ( p != null ) {
-//                //System.out.print( " ["+p.id+","+p.arr+","+p.dest+"]" );
-//                p = nextPassenger( p, ++i );
-//            }
-//          // System.out.println();
-//        }
+        private void display() {
+
+            int i = 0;
+            Passenger p = firstPassenger() ;
+            while ( p != null ) {
+                if (verbose){
+                    System.out.print( " ["+p.id+","+p.arr+","+p.dest+"]" ) ;
+                    System.out.println();
+                }
+                p = nextPassenger( p, ++i );
+            }
+        }
 
         private Passenger firstPassenger() {
             return (linked ? head : eList.get(0));
@@ -324,9 +359,6 @@ public class Lifts {
                 if (p.Dir() == dir) {
                     accept(new Passenger(p.Id(), p.Arr(),
                             p.Dest()));
-//                    System.out.format( "-- tick%4d - no.%4d enters"+
-//                            " elevator%3d:",tick,p.Id(),e );
-                    //display();
                     floor.goodbye(p);
                     wait[curr]--;
                 }
@@ -361,8 +393,10 @@ public class Lifts {
             } else {
                 eList.remove(p);
             }
-//            System.out.format( "-- tick%4d - no.%4d exits  on floor%3d\n",
-//                    tick,p.Id(),p.Dest() );
+            if (verbose){
+                System.out.format( "-- tick%4d - no.%4d exits  on floor%3d\n",
+                        tick,p.Id(),p.Dest() );
+            }
             --load;
             reachedDest++;
             return (tick - p.Arr());
@@ -557,16 +591,16 @@ public class Lifts {
             }
         }
 
-//        private void display() {
-//            if ((head == null) || (!linked && fList.isEmpty())){
-//                return ;
-//            }
-//            for ( Person p = head;  p != null;  p = p.flink ) {
-//                System.out.format( " (%d,%d,%d)",p.Id(),p.Arr(),
-//                        p.Dest() );
-//            }
-//            System.out.println();
-//        }
+        private void display() {
+            if ((head == null) || (!linked && fList.isEmpty())){
+                return ;
+            }
+            for ( Person p = head;  p != null;  p = p.flink ) {
+                System.out.format( " (%d,%d,%d)",p.Id(),p.Arr(),
+                        p.Dest() );
+            }
+            System.out.println();
+        }
 
         private Person firstPerson() {
             return (linked ? head : fList.get(0));
