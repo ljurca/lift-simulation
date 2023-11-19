@@ -31,14 +31,57 @@ Elevator simulator written in java using a Doubly Linked List or Array List. The
 
  load: number of passenger inside
 
- # Elevator private methods 
+ # Elevator methods() 
 
-accept(): A new passenger is added to the elevator 
+accept(): A new passenger is added to the elevator. 
 
 add(): Method is only called when elevator is a linked list. Add() adds a passenger to the linked list. 
 
-display(): displays information if program is running in verbose mode.
+display(): Displays information if program is running in verbose mode.
 
 firstPassenger(): Returns first person in elevator at given moment. 
 
 getPassenger(): Gets passenger into elevator. The passenger's destination floor must be in the same direction as the elevator. 
+
+goNext(): Determine the direction of elevator.
+
+goodbye(): Passenger exits elevator. Remove from elevator and subtract from the load in current elevator, and increment the people who have reached destination. 
+
+nextPassenger(): Returns the next passenger in an elevator. 
+
+remove(): Remove a passenger from a linked list. Only called when a linked list is used. 
+
+toNextFloor(): Determines the next floor an elevator goes to. If there is nobody in the elevator, it checks the floors above and below. It checks to see who is closest: someone who below who wants to go up, someone below who wants to go down, someone below who wants to go up, and someone below who wants to go down.
+
+If the elevator is not empty and it is going up, it determines which destination floor is closest and goes there. If the elevator is not empty and is going down, it does the same. It also checks to see who is waiting on the near floors, and which is floor is closer. 
+
+unload(): Unloads the elevator if a passenger reaches their destination floor. 
+
+updateTimes(): Updates the time variables. 
+
+# Floor Class 
+
+A floor is either a doubly linked list or an array list depending on implementation. 
+
+# Floor Methods()
+
+add(): Adds a person to a linked list. Only called when using linked list.
+
+append(): Adds a person to a floor. 
+
+ckButtons(): Updates the pushUp and pushDown array. This determines which floors the up and down buttons have been pressed.
+
+display(): Displays information if program is running in verbose mode.
+
+firstPerson(): Returns first person on floor at given moment. 
+
+goodbye(): Person leaves the floor. 
+
+nextPerson(): Return next person on the floor.
+
+remove(): Removes person from a linked list. Only called when a linked list is used.
+
+# Passenger Class
+
+
+
