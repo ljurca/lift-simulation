@@ -257,8 +257,7 @@ public class Lifts {
 
         private Passenger head, tail;    // an Elevator is a doubly linked list
         private ArrayList<Passenger> eList;    // or an ArrayList
-        private int curr, dir, load; // current floor, direction of elevator,
-                                    // num of passengers inside
+        private int curr, dir, load; // current floor, direction of elevator, passengers inside
 
         /*--------------------------------------------------------------------*/
         /* constructor: Elevator
