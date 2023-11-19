@@ -83,5 +83,29 @@ remove(): Removes person from a linked list. Only called when a linked list is u
 
 # Passenger Class
 
+A passenger is a node. The private data members are
+
+id: id number that can be viewed in verbose mode
+
+arr: arrival time
+
+dest: destination floor 
+
+# Person Class
+
+A person is a node. The private data members are 
+
+id: id number that can be viewed in verbose mode
+
+arr: arrival time (tick)
+
+dest: destination floor
+
+dir: direction they will go in 
+
+# Person Method()
+
+destFloor(): Determines a person's destination floor. If the floor the person is on is 1, a random floor is generated. It will be a floor from floor 2 - the top floor. Otherwise, the probability factor (3) is utilized. If a person is on a floor that is not 1, the liklihood of them going back to floor 1 is about 2/3 of the time (guess). If a random number % PF is not 0, we return 1. This will be the person's destination floor. If it is 0, a random floor is generated as their destination floor. 
+
 
 
