@@ -105,7 +105,6 @@ dir: direction they will go in
 
 # Person Method()
 
-destFloor(): Determines a person's destination floor. If the floor the person is on is 1, a random floor is generated. It will be a floor from floor 2 - the top floor. Otherwise, the probability factor (3) is utilized. If a person is on a floor that is not 1, the liklihood of them going back to floor 1 is about 2/3 of the time (guess). If a random number % PF is not 0, we return 1. This will be the person's destination floor. If it is 0, a random floor is generated as their destination floor. 
-
+destFloor(): Determines a person's destination floor. If the floor the person is on is 1, a random floor is generated. It will be a floor from floor 2 - the top floor. Otherwise, the probability factor (3) is utilized. If a person is on a floor that is not 1, the liklihood of them going back to floor 1 is 2/3 of the time (guess). In the case where they do not go to floor 1, then a random floor is chosen. This will not be floor 1 or the floor they are on. 
 
 
