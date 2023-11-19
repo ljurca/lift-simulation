@@ -1,6 +1,8 @@
 # Lifts Class
 Elevator simulator written in java using a Doubly Linked List or Array List. The characteristics of this program can be manipulated by using a Properties File. The program can also accept a second argument, "verbose", which outputs extended information regarding the simulation. 
 
+This program could have utilized queues, such as an up queue and a down queue on each floor. This might improve the performance of the program, but it would not affect the travel time of the passenger. 
+
  # Main()
 
  The main function manages the properties of the simulation. If there is a properties file present, the key variables are changed. 
