@@ -1,13 +1,13 @@
 # Elevator Simulation: Lifts.java
-Elevator simulator written in java using a Doubly Linked List or Array List. The characteristics of this program can be manipulated by using a Properties File. 
+Elevator simulator written in java using a Doubly Linked List or Array List. The characteristics of this program can be manipulated by using a Properties File. The program can also accept a second argument, "verbose", which outputs extended information regarding the simulation. 
 
-# FINAL VARIABLES
+# final variables
 
   M = 5: Maximum distance elevator moves per tick. 
   
   PF = 3: Probability factor. Persons' destination floor has a 2/3 probability of being 1, if they are not currently on floor 1. 
 
- # GLOBAL VARIABLES 
+ # global variables
 
   prob: the "passengers" value, given by properties file or default 
 
@@ -36,3 +36,5 @@ Elevator simulator written in java using a Doubly Linked List or Array List. The
   up = 0: int variable that represents up 
 
   down = 1: int variable that represents down 
+
+  # Main
