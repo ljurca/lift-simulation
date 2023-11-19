@@ -634,7 +634,7 @@ public class Lifts {
             return (linked ? head : fList.get(0));
         }
 
-        /* GOODBYE(): person leaves floor */
+        /* GOODBYE(): Person leaves floor */
         private void goodbye(Person p) {
             if (linked) {
                 remove(p);
