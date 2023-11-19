@@ -17,7 +17,7 @@ public class Lifts {
                                         // chooses floor 1 as next destination floor
 
     /*------------------------------------------------------------*/
-    /* global variables					                          */
+    /* global variables
     /*------------------------------------------------------------*/
 
     static double prob;            // "passengers" in file
@@ -28,7 +28,7 @@ public class Lifts {
     public static void main(String[] args) throws IOException {
 
         /*------------------------------------------------------------*/
-        /* local variables					                          */
+        /* local variables
         /*------------------------------------------------------------*/
 
         String[] defvalue = {"linked", "32", "0.03", "1", "10", "500"};
@@ -37,7 +37,7 @@ public class Lifts {
         String[] value = new String[defvalue.length];
 
         /*------------------------------------------------------------*/
-        /* checking possible input file				                  */
+        /* checking possible input file
         /*------------------------------------------------------------*/
 
         if (args.length != 0) {
@@ -54,7 +54,7 @@ public class Lifts {
         prob = Double.parseDouble(value[2]);
 
         /*------------------------------------------------------------*/
-        /* verbose mode			                                      */
+        /* verbose mode
         /*------------------------------------------------------------*/
         verbose = false ;
         if (args.length > 1){
@@ -75,7 +75,7 @@ public class Lifts {
         }
 
         /*------------------------------------------------------------*/
-        /* initializing				                                  */
+        /* initializing
         /*------------------------------------------------------------*/
 
         up = 0;
@@ -100,7 +100,7 @@ public class Lifts {
         pID = visitors = reachedDest = 0;    // total visitors & visitors who reach destination
 
         /*------------------------------------------------------------*/
-        /* ticks and movement				                          */
+        /* ticks and movement
         /*------------------------------------------------------------*/
 
         long t = System.currentTimeMillis();
@@ -111,7 +111,7 @@ public class Lifts {
         t = System.currentTimeMillis() - t;
 
         /*------------------------------------------------------------*/
-        /* results						                              */
+        /* results
         /*------------------------------------------------------------*/
 
         int riders = 0, waiters = 0;
@@ -145,7 +145,7 @@ public class Lifts {
 
         if (reachedDest > 0) {
             double mean = (double) totalTime / (double) reachedDest;
-            System.out.format("%7.2f mean time from arrival to destination. \n", mean);
+            System.out.format("%7.2f average time from arrival to destination. \n", mean);
         } else {
             System.out.format(0 + " mean time from arrival to destination. \n");
         }
@@ -236,7 +236,7 @@ public class Lifts {
     }
 
     /*--------------------------------------------------------------------*/
-    /* Returns randomly generated int in [0,Integer.MAX_VALUE]	          */
+    /* Returns randomly generated int in [0,Integer.MAX_VALUE]
     /*--------------------------------------------------------------------*/
 
     /* RANDOM(): Random number generator */
@@ -255,7 +255,7 @@ public class Lifts {
     private static class Elevator {
 
         /*--------------------------------------------------------------------*/
-        /* private data members: Elevator		                              */
+        /* private data members: Elevator
         /*--------------------------------------------------------------------*/
 
         private Passenger head, tail;    // an Elevator is a doubly linked list
@@ -264,7 +264,7 @@ public class Lifts {
                                     // num of passengers inside
 
         /*--------------------------------------------------------------------*/
-        /* constructor: Elevator				                              */
+        /* constructor: Elevator
         /*--------------------------------------------------------------------*/
 
         Elevator() {
@@ -280,7 +280,7 @@ public class Lifts {
         }
 
         /*--------------------------------------------------------------------*/
-        /* accessors/mutators: Elevator				                          */
+        /* accessors/mutators: Elevator
         /*--------------------------------------------------------------------*/
 
         private int Curr() {
@@ -304,7 +304,7 @@ public class Lifts {
         }
 
         /*--------------------------------------------------------------------*/
-        /* private methods: Elevator					                      */
+        /* private methods: Elevator
         /*--------------------------------------------------------------------*/
 
         /* ACCEPT():  accept a passenger in the elevator */
@@ -541,14 +541,14 @@ public class Lifts {
     private static class Floor {
 
         /*--------------------------------------------------------------------*/
-        /* private data members: Floor				                          */
+        /* private data members: Floor
         /*--------------------------------------------------------------------*/
 
         private Person head, tail;    // a Floor is a doubly linked list
         private ArrayList<Person> fList; // or array list
 
         /*--------------------------------------------------------------------*/
-        /* constructor: Floor					                              */
+        /* constructor: Floor
         /*--------------------------------------------------------------------*/
 
         Floor() {
@@ -560,7 +560,7 @@ public class Lifts {
         }
 
         /*--------------------------------------------------------------------*/
-        /* private methods: Floor				                              */
+        /* private methods: Floor
         /*--------------------------------------------------------------------*/
 
         /* ADD(): adds a new person to linked list */
@@ -665,7 +665,7 @@ public class Lifts {
     private static class Passenger {
 
         /*--------------------------------------------------------------------*/
-        /* private data members: Passenger				                      */
+        /* private data members: Passenger
         /*--------------------------------------------------------------------*/
 
         private Passenger blink;    // a Passenger is a node
@@ -675,7 +675,7 @@ public class Lifts {
         private Passenger flink;
 
         /*--------------------------------------------------------------------*/
-        /* constructor: Passenger					                          */
+        /* constructor: Passenger
         /*--------------------------------------------------------------------*/
 
         Passenger(int idNum, int arrivalTime, int destFloor) {
@@ -689,7 +689,7 @@ public class Lifts {
         }
 
         /*--------------------------------------------------------------------*/
-        /* accessors: Passenger					                              */
+        /* accessors: Passenger
         /*--------------------------------------------------------------------*/
 
         private int Arr() {
@@ -708,7 +708,7 @@ public class Lifts {
     private static class Person {
 
         /*--------------------------------------------------------------------*/
-        /* private data members: Person				                          */
+        /* private data members: Person
         /*--------------------------------------------------------------------*/
 
         private Person blink;        // if a Person is a node
@@ -719,7 +719,7 @@ public class Lifts {
         private Person flink;        // if a Person is a node
 
         /*--------------------------------------------------------------------*/
-        /* constructor: Person						                          */
+        /* constructor: Person
         /*--------------------------------------------------------------------*/
 
         Person(int floor) {
@@ -757,7 +757,7 @@ public class Lifts {
 
 
     /*-------------------------------------------------------------------*/
-    /* private method: Person                   */
+    /* private method: Person
     /*-------------------------------------------------------------------*/
 
     /* DESTFLOOR(): determines destination floor. If not on floor 1, person has
