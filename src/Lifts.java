@@ -757,7 +757,7 @@ public class Lifts {
 
 
     /*-------------------------------------------------------------------*/
-    /* private method: Person                                            */
+    /* private method: Person                   */
     /*-------------------------------------------------------------------*/
 
     /* DESTFLOOR(): determines destination floor. If not on floor 1, person has
