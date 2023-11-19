@@ -157,7 +157,7 @@ public class Lifts {
         }
     }
 
-    /* ARRIVALS(): A person arrives on a floor. */
+    /* ARRIVALS(): A new Person is created on a Floor. */
     private static void arrivals(Floor[] floorArr, Integer[] wait,
                                  Boolean[] pushUp, Boolean[] pushDown) {
 
@@ -188,8 +188,9 @@ public class Lifts {
         }
     }
 
-    /* DEPARTURES(): unload people if they want to get off &
-     get people if they are going in same direction as elevator */
+    /* DEPARTURES(): unload passenger if they want to get off &
+     get people if they are going in same direction as elevator (and not
+     at capacity) */
     private static void departures(Floor[] floorArr, Integer[] wait,
                                    Boolean[] pushUp, Boolean[] pushDown, Elevator[] elevatorArr) {
 
@@ -209,7 +210,7 @@ public class Lifts {
     }
 
 
-    /* GETVALUES(): used to get values from properties file */
+    /* GETVALUES(): used to get values from Property File (if present) */
     private static void getvalues(String fname, String[] key, String[] v,
                                   String[] dv) {
 
@@ -229,15 +230,11 @@ public class Lifts {
         }
     }
 
-    /* NPERSONS(): creates new person based on probability value */
+    /* NPERSONS(): number of Persons (0 or 1) on a Floor at specified tick */
     private static int npersons() {
 
         return ((new Random().nextDouble() > prob ? 0 : 1)); // if 0, no new person
     }
-
-    /*--------------------------------------------------------------------*/
-    /* Returns randomly generated int in [0,Integer.MAX_VALUE]
-    /*--------------------------------------------------------------------*/
 
     /* RANDOM(): Random number generator */
     private static int random(Random rand) {
@@ -292,7 +289,7 @@ public class Lifts {
         }
 
         private int Dir() {
-            return (dir); // direction
+            return (dir); // direction: up or down
         }
 
         private void setCurr(int floor) { // sets specific floor
@@ -307,7 +304,7 @@ public class Lifts {
         /* private methods: Elevator
         /*--------------------------------------------------------------------*/
 
-        /* ACCEPT():  accept a passenger in the elevator */
+        /* ACCEPT(): admits a passenger in the elevator */
         private void accept(Passenger p) {
 
             if (linked) {
@@ -348,7 +345,7 @@ public class Lifts {
             }
         }
 
-        /* FIRSTPASSENGER(): first person in elevator at given moment */
+        /* FIRSTPASSENGER(): returns first Passenger in Passenger List at given moment */
         private Passenger firstPassenger() {
             return (linked ? head : eList.get(0));
         }
@@ -378,11 +375,11 @@ public class Lifts {
             }
         }
 
-        /* GONEXT(): determine the direction of goNext */
+        /* GONEXT(): sets floor and direction for next tick */
         private void goNext(int destFloor, int dir) {
             int topFloor = floors; // # of floors = top floor
 
-            setCurr(destFloor);
+            setCurr(destFloor); // next floor
             if (destFloor == 1) {
                 setDir(up); // must go up
                 return;
@@ -394,7 +391,7 @@ public class Lifts {
             setDir(dir);
         }
 
-        /* GOODBYE(): passenger leaving elevator */
+        /* GOODBYE(): passenger leaving elevator, arrived at desired floor */
         private int goodbye(Passenger p) {
 
             if (linked) {
@@ -411,7 +408,7 @@ public class Lifts {
             return (tick - p.Arr());
         }
 
-        /* NEXTPASSENGER(): return next passenger in elevator */
+        /* NEXTPASSENGER(): return next Passenger in Passenger list (elevator) */
         private Passenger nextPassenger(Passenger p, int i) {
             if (linked) {
                 return (p.flink); // forward link
@@ -475,17 +472,21 @@ public class Lifts {
                 while (p != null) {
                     int d = p.Dest();
                     if (d < i) {
-                        i = d; // passenger destination
+                        // i = the closest above floor which is passenger destination floor
+                        i = d;
                     }
                     p = nextPassenger(p, ++j);
                 }
                 for (j = curr; j < floors; ) {
-                    if (pushUp[++j]) {    // passenger going up?
+                    if (pushUp[++j]) {
+                        // j =  the closest floor above where an up button has been pushed
                         break;
                     }
                 }
                 if (j < i) {
-                    i = j; // which waiter is closer
+                    // which floor is closer: destination or waiter floor?
+                    // that will be next floor
+                    i = j;
                 }
                 goNext((Math.min(i, curr + M)), up);
 
@@ -496,23 +497,27 @@ public class Lifts {
                 while (p != null) {
                     int d = p.Dest();
                     if (i < d) {
-                        i = d; // passenger destination
+                        // i = the closest below floor which is passenger destination floor
+                        i = d;
                     }
                     p = nextPassenger(p, ++j);
                 }
                 for (j = curr; 1 < j; ) {
-                    if (pushDown[--j]) { // passenger going down?
+                    if (pushDown[--j]) {
+                        // j = find the closest floor below where a down button has been pushed
                         break;
                     }
                 }
                 if (j < i) {
-                    j = i; // which waiter is closer
+                    // which floor is closer: destination or waiter floor?
+                    // that will be next floor
+                    j = i;
                 }
                 goNext(Math.max(j, curr - M), down);
             }
         }
 
-        /* UNLOAD(): unloads the elevator */
+        /* UNLOAD(): unloads those who have reached dest floor */
         private void unload(int floor) {
 
             int i = 0;
@@ -563,7 +568,7 @@ public class Lifts {
         /* private methods: Floor
         /*--------------------------------------------------------------------*/
 
-        /* ADD(): adds a new person to linked list */
+        /* ADD(): adds a new Person to linked list */
         private void add(Person p) {
             if (tail == null) {
                 head = p;
@@ -576,7 +581,7 @@ public class Lifts {
             tail.flink = null;
         }
 
-        /* APPEND(): adds a person to a Floor */
+        /* APPEND(): adds a Person to a Floor */
         private void append(Person p) {
 
             if (linked) {
@@ -624,7 +629,7 @@ public class Lifts {
             System.out.println();
         }
 
-        /* FIRSTPERSON(): returns first person on floor at given moment */
+        /* FIRSTPERSON(): returns first Person in Floor List at given moment */
         private Person firstPerson() {
             return (linked ? head : fList.get(0));
         }
@@ -638,7 +643,7 @@ public class Lifts {
             }
         }
 
-        /* NEXTPERSON(): return next person on floor */
+        /* NEXTPERSON(): return next Person in Floor List */
         private Person nextPerson(Person p, int i) {
             if (linked) {
                 return (p.flink);
@@ -647,7 +652,7 @@ public class Lifts {
             }
         }
 
-        /* REMOVE(): remove person from linked list */
+        /* REMOVE(): remove Person from Floor linked list */
         private void remove(Person p ){
             if (p == head){
                 head = p.flink ;
@@ -761,7 +766,7 @@ public class Lifts {
     /*-------------------------------------------------------------------*/
 
     /* DESTFLOOR(): determines destination floor. If not on floor 1, person has
-    2/3 probability of going back to floor 1. */
+    2/3 probability of going down to floor 1. */
     private static int destFloor(int floor) {
         Random rand = new Random();
 
