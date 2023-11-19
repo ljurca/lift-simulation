@@ -85,21 +85,23 @@ remove(): Removes person from a linked list. Only called when a linked list is u
 
 # Passenger Class
 
-A passenger is a node. The private data members are
+The private data members in the Passenger class are
 
 id: id number that can be viewed in verbose mode
 
-arr: arrival time
+arr: time when someone entered a floor. In the Passenger class so it can be recorded for when they get off the elevator
 
 dest: destination floor 
 
+We do not record the direction of a Passenger, only a Person. This is because a Passenger's direction is the same as the elevator they entered. 
+
 # Person Class
 
-A person is a person. But a passenger is distinctly someone who is riding/rode the elevator. A person is a node. The private data members are 
+A Person is a Person, but a Passenger is distinctly someone who is riding/rode the elevator. The private data members in the Person class are 
 
 id: id number that can be viewed in verbose mode
 
-arr: arrival time (tick)
+arr: time when someone entered a floor 
 
 dest: destination floor
 
