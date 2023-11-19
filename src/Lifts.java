@@ -2,7 +2,8 @@
 /* ------------------------------------------------------------------------ */
 /* LIFTS.JAVA : elevator simulation using ArrayLists and DoublyLinkedLists. */
 /* Add a properties file arg[0] to change building properties.              */
-/* Type "verbose" arg[1] to run in verbose mode                             */
+/* Type "verbose" arg[1] to run in verbose mode.                            */
+/*  README.md available on github.                                           */
 /* ------------------------------------------------------------------------ */
 
 import java.io.*;
