@@ -1,7 +1,5 @@
-# Elevator Simulation: CS245 Project02
+# Elevator Simulation: Lifts.java
 
-Class:
-  Variables
-  Methods
+# Final Variables
+  M = 5: 
   
-Main: 
