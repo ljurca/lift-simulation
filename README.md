@@ -93,7 +93,7 @@ dest: destination floor
 
 # Person Class
 
-A person is a node. The private data members are 
+A person is a person. But a passenger is distinctly someone who is riding/rode the elevator. A person is a node. The private data members are 
 
 id: id number that can be viewed in verbose mode
 
