@@ -417,7 +417,7 @@ public class Lifts {
             }
         }
 
-        /* REMOVE(): remove passenger from linked list */
+        /* REMOVE(): remove Passenger from linked list */
         private void remove(Passenger p) { // flink = forwards link ; blink = backwards link
             if (p == head) {
                 head = p.flink;
@@ -524,7 +524,7 @@ public class Lifts {
             Passenger p = firstPassenger();
             while (p != null) {
                 if (p.Dest() == floor) {
-                    int t = goodbye(p); //passenger leaving elevator
+                    int t = goodbye(p); // passenger leaving elevator
                     updateTimes(t);
                 }
                 p = nextPassenger(p, ++i);
@@ -673,7 +673,7 @@ public class Lifts {
         /* private data members: Passenger
         /*--------------------------------------------------------------------*/
 
-        private Passenger blink;    // a Passenger is a node
+        private Passenger blink;    // if a Passenger is a node
         private int id;
         private int arr;
         private int dest;
@@ -721,7 +721,7 @@ public class Lifts {
         private int arr;
         private int dest;
         private int dir;
-        private Person flink;        // if a Person is a node
+        private Person flink;
 
         /*--------------------------------------------------------------------*/
         /* constructor: Person
@@ -775,8 +775,7 @@ public class Lifts {
             // 2 <= ? <= floors
         }
         if ((random(rand) % PF) != 0) {
-            return (1);    // to floor 1	// probability of this
-            //  equals (PF-1)/PF
+            return (1);    // to floor 1, probability equals (PF-1)/PF
         }
         int r = (random(rand) % (floors - 2)) + 2; // 2 <= r < floors
         return ((r < floor ? r : r + 1));     // 2 <= ? != 1 <= floors
