@@ -17,7 +17,7 @@ public class Lifts {
                                         // chooses floor 1 as next destination floor
 
     /*------------------------------------------------------------*/
-    /* global variables					                     */
+    /* global variables					                          */
     /*------------------------------------------------------------*/
 
     static double prob;            // "passengers" in file
