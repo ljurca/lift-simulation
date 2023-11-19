@@ -1,40 +1,44 @@
-# Elevator Simulation: Lifts.java
+# Lifts Class
 Elevator simulator written in java using a Doubly Linked List or Array List. The characteristics of this program can be manipulated by using a Properties File. The program can also accept a second argument, "verbose", which outputs extended information regarding the simulation. 
 
-# final variables
+ # Main()
 
-  M = 5: Maximum distance elevator moves per tick. 
-  
-  PF = 3: Probability factor. Persons' destination floor has a 2/3 probability of being 1, if they are not currently on floor 1. 
+ The main function manages the properties of the simulation. If there is a properties file present, the key variables are changed. 
+ 
+ New arrays are intialized, such as the array of elevators, the array of floors, and the array of people waiting on each floor. Additoinally, pushUp and pushDown is a boolean array that shows if someone "pressed up" or "pressed down" on each floor. Likewise, "wait" is an array that shows who is waiting on a given floor. 
 
- # global variables
+ Main also prints out the required output, as well as the optional verbose output. 
 
-  prob: the "passengers" value, given by properties file or default 
+ # Other methods
 
-  capacity: capacity of people in elevator, given by properties file or default 
+ arrivals(): A person is created. Simulates when a person arrives on a floor. They are added to the array "wait" array, as they are now waiting on a floor. 
 
-  duration: amount of ticks, given by properties file or default 
+ departures(): The elevator car unloads if people want to get off, and the car picks people up if they are going in the same direction. 
 
-  elevators: number of elevators, given by properties file or default 
+ getvalues(): Assists with reading the Properties File, and changing the key variables in the simulation. 
 
-  floors: number of floors, given by properties file or default 
+ npersons(): Creates a new person if a random double is less than the probablity given by the property file, or default value (0.03). 
 
-  maxTime: maximum time from arrival to destination 
+ random(): Random number generator, ensures a positive random int is returned. 
 
-  minTime: minimum time from arrival to destination
+ # Elevator Class
 
-  pID: a Person's ID, can ve viewed in verbose mode. 
+ An elevator is either a doubly linked list or an array list depending on implementation. The private data members are
 
-  tick: time metric 
+ curr: current floor
 
-  totalTime: total time simulation ran 
+ dir: direction of elevator 
 
-  visitors: total amount of visitors
+ load: number of passenger inside
 
-  reachedDest: the amount of persons who reached their destinaton 
+ # Elevator private methods 
 
-  up = 0: int variable that represents up 
+accept(): A new passenger is added to the elevator 
 
-  down = 1: int variable that represents down 
+add(): Method is only called when elevator is a linked list. Add() adds a passenger to the linked list. 
 
-  # Main
+display(): displays information if program is running in verbose mode.
+
+firstPassenger(): Returns first person in elevator at given moment. 
+
+getPassenger(): Gets passenger into elevator. The passenger's destination floor must be in the same direction as the elevator. 
